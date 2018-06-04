@@ -1,0 +1,86 @@
+.screenshot {
+    float: left;
+    margin: 20px;
+    border: 1px solid #999;
+    cursor: pointer;
+}
+
+.screenshot img {
+    display: block;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.screenshot img {
+    opacity: 0.7;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 100;
+    padding-top: 100px;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.9);
+}
+
+.modal-image {
+    margin: auto;
+    display: block;
+    width: 80%;
+}
+
+.modal-caption {
+    margin: auto;
+    display: block;
+    width: 80%;
+    max-width: 700px;
+    text-align: center;
+    color: #ccc;
+    padding: 10px 0;
+    height: 150px;
+}
+
+.modal-close,
+.modal-left,
+.modal-right {
+    position: absolute;
+    color: #f1f1f1;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.modal-close {
+    top: 15px;
+    right: 35px;
+    font-size: 40px;
+}
+
+.modal-left {
+    top: 40%;
+    left: 45px;
+    font-size: 30px;
+}
+
+.modal-right {
+    top: 40%;
+    right: 45px;
+    font-size: 30px;
+}
+
+.modal-close:hover,
+.modal-close:focus,
+.modal-left:hover,
+.modal-left:focus,
+.modal-right:hover,
+.modal-right:focus {
+    color: #bbb;
+    text-decoration: none;
+    cursor: pointer;
+}
+

@@ -38,7 +38,11 @@ $showDebug = true;
 # === SCRIPT ============
 ini_set('memory_limit', '1024M');
 $var = ChromeDriverService::CHROME_DRIVER_EXE_PROPERTY;
-putenv("$var=webdriver/mac64/chromedriver 3");
+if (isset($_SERVER['OS']) && $_SERVER['OS'] == 'Windows_NT') {
+    putenv("$var=webdriver/win32/chromedriver.exe");
+} else {
+    putenv("$var=webdriver/mac64/chromedriver 3");
+}
 
 // logging functions
 function log($str) {

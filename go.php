@@ -20,8 +20,8 @@ require_once 'ResultsMaker.php';
 
 # === CONFIG ===========
 
-$baselineDomain = 'http://www.silverstripe.org';
-$branchDomain = 'http://www.silverstripe.org';
+$baselineDomain = 'http://mysite-baseline.test';
+$branchDomain = 'http://mysite.test';
 
 $paths = [
     '/'
@@ -29,7 +29,7 @@ $paths = [
 
 # === DEV ===============
 
-$screenshotBaseline = false;
+$screenshotBaseline = true;
 $screenshotBranch = true;
 $createResults = true;
 

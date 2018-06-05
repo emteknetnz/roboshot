@@ -1,3 +1,4 @@
-.idea/
+_config.php
+/.idea/
 /vendor/
 /screenshots/

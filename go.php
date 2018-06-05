@@ -1,5 +1,7 @@
 <?php
 
+// TODO: convert _config.php to define() (not const), allow php5 support for arrays via serialize and unserialize
+// TODO: windows support
 // TODO: prefix filename with 0000 instead of suffix
 // TODO: checkbox in js modal default true that left/right arrows go to next non-0000 no diff image
 // TODO: when clicking on image to open in new tab, suffix ?path=/admin/pages/edit.. etc, from /montage-admin-pages-edit-EditForm-326-fi...
@@ -17,23 +19,8 @@ require_once 'BaseClass.php';
 require_once 'BrowserPilot.php';
 require_once 'ImageMaker.php';
 require_once 'ResultsMaker.php';
+require_once '_config.php';
 
-# === CONFIG ===========
-
-$baselineDomain = 'http://www.silverstripe.org';
-$branchDomain = 'http://www.silverstripe.org';
-
-$paths = [
-    '/'
-];
-
-# === DEV ===============
-
-$screenshotBaseline = false;
-$screenshotBranch = true;
-$createResults = true;
-
-$showDebug = true;
 
 # === SCRIPT ============
 ini_set('memory_limit', '1024M');

@@ -475,12 +475,37 @@ EOT
 
             // navigate to each model admin and take screenshot
             foreach ($ids as $id) {
+                log("Clicking model admin $id");
                 $this->browserPilot->executeJS(<<<EOT
                     document.getElementById('$id').querySelector('a').click();
 EOT
                 );
                 $this->browserPilot->waitUntilPageLoaded();
                 $this->takeScreenshot(false);
+
+                // get ids of all model admin tabs
+                $tabIDsJoined = $this->browserPilot->executeJS(<<<EOT
+                    var ids = [];
+                    var selector = '.cms-tabset-nav-primary.ui-tabs-nav a';
+                    var links = document.querySelectorAll(selector);
+                    for (var i = 0; i < links.length; i++) {
+                        var link = links[i];
+                        if (link.innerText == 'Main') {
+                            continue;
+                        }
+                        ids.push(link.id);
+                    }
+                    return ids.join(';');
+EOT
+                );
+                $tabIDs = explode(';', $tabIDsJoined);
+
+                foreach ($tabIDs as $tabID) {
+                    $this->browserPilot->executeJS("document.getElementById('$tabID').click();");
+                    $this->browserPilot->waitUntilPageLoaded();
+                    $this->takeScreenshot(false);
+                    $this->screenshotGridfield($gridFieldAssoc);
+                }
             }
         }
 

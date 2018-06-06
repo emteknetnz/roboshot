@@ -1,15 +1,17 @@
 <?php
 
-$baselineDomain = 'http://mysite-baseline.test';
-$branchDomain = 'http://mysite.test';
+define('BASELINE_DOMAIN', 'http://mysite-baseline.test');
+define('BRANCH_DOMAIN', 'http://mysite.test');
 
-$screenshotBaseline = true;
-$screenshotBranch = true;
-$createResults = true;
+define('SCREENSHOT_BASELINE', true);
+define('SCREENSHOT_BRANCH', true);
+define('CREATE_RESULTS', false);
 
-$showDebug = false;
+define('SHOW_DEBUG', false);
 
-$paths = [
+define('PATHS', serialize([
     '/',
-    '/contact-us'
-];
+    '/contact-us/',
+    '/admin'
+]));
+

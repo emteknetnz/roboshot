@@ -5,7 +5,6 @@
 # Backend features
 - config for admin/password credentials
 - config for ids on security login
-- update (.vagrant/.test) regex to !(.govt|.com|.org)
 - show line number and filename of call in log() and debug()
 
 # Frontend features

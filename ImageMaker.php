@@ -420,14 +420,17 @@ class ImageMaker extends BaseClass
         $gridFieldAssoc = [];
         $driver = $this->browserPilot->getDriver();
 
-        if (!preg_match('%\.(test|vagrant|local)%', $driver->getCurrentURL())) {
-            echo "Can only screenshot local admin\n";
+        $currentURL = $driver->getCurrentURL();
+
+        $rx = '%\.(govt|com|org|mil|nz|uat|prod|cwp)%';
+        if (preg_match('%\.(govt|com|org|mil|nz|uat|prod|cwp)%', $currentURL)) {
+            log('Can only screenshot local admin');
+            log("$currentURL matched regex $rx");
             return;
         }
 
         // login to admin
-        // currently will only work on local dev
-        if (preg_match('%/Security/login%', $driver->getCurrentURL())) {
+        if (preg_match('%/Security/login%', $currentURL)) {
             $driver->findElement(WebDriverBy::id('MemberLoginForm_LoginForm_Email'))->sendKeys('admin');
             $driver->findElement(WebDriverBy::id('MemberLoginForm_LoginForm_Password'))->sendKeys('password');
             $driver->findElement(WebDriverBy::id('MemberLoginForm_LoginForm_action_dologin'))->click();

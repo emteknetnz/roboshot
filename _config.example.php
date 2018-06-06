@@ -5,7 +5,7 @@ define('BRANCH_DOMAIN', 'http://mysite.test');
 
 define('SCREENSHOT_BASELINE', true);
 define('SCREENSHOT_BRANCH', true);
-define('CREATE_RESULTS', false);
+define('CREATE_RESULTS', true);
 
 define('SHOW_DEBUG', false);
 

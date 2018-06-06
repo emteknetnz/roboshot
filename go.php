@@ -3,7 +3,6 @@
 /* TODO:
 
 # Backend features
-- delete diff? images after results completed
 - config for admin/password credentials
 - config for ids on security login
 - update (.vagrant/.test) regex to !(.govt|.com|.org)
@@ -11,13 +10,16 @@
 
 # Frontend features
 - normalise URL segment domains
+- put filename to top of screenshot template
 - when clicking on image to open in new tab, suffix ?path=/admin/pages/edit.. etc, from /montage-admin-pages-edit-EditForm-326-fi... (get the path into the template as data-path)
 - checkbox in js modal default true that left/right arrows go to next non-0000 no diff image
+- make the results template non ugly
 
 # Refactoring
 - replace imagecreatefromstring() with imagecreatefrompng()
 - createDiffAndMontageImages() - if one of images is missing, create a blank jpg
 - deletePreviousImages() - move resize 1440 - done there because when doing branch domain after baseline domain post admin resize
+- change lol $imageHtmls .= in createResults() to an array push
 
 */
 

@@ -314,7 +314,7 @@ class ImageMaker extends BaseClass
 
         $percDiffFourDP = preg_replace('%[01]\.([0-9]{4})%', '$1', number_format($percDiff, 4));
 
-        $diffFilename = preg_replace('%^(.+?)\.png%', "diff-$1-$percDiffFourDP.png", $filename);
+        $diffFilename = preg_replace('%^(.+?)\.png%', "diff-$percDiffFourDP-$1.png", $filename);
 
         $diffPath = "$resultsDir/$diffFilename";
 

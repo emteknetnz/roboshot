@@ -1,7 +1,7 @@
 <?php
 
-// TODO: prefix filename with 0000 instead of suffix
 // TODO: delete diff? images after results completed
+// TODO: normalise URL segment domains
 // TODO: checkbox in js modal default true that left/right arrows go to next non-0000 no diff image
 // TODO: when clicking on image to open in new tab, suffix ?path=/admin/pages/edit.. etc, from /montage-admin-pages-edit-EditForm-326-fi...
 //       ^ may want to investigate switch - to or _ or other so because - can be in a url for frontend pages
@@ -9,6 +9,10 @@
 // TODO: config for admin/password credentials
 // TODO: config for ids on security login
 // TODO: update (.vagrant/.test) regex to !(.govt|.com|.org)
+// TODO: show line number and filename of call in log() and debug()
+// TODO: replace imagecreatefromstring() with imagecreatefrompng()
+// TODO: createDiffAndMontageImages() - if one of images is missing, create a blank jpg
+// TODO: deletePreviousImages() - move resize 1440 - done there because when doing branch domain after baseline domain post admin resize
 
 namespace Roboshot;
 

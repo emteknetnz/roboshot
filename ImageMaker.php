@@ -233,10 +233,6 @@ class ImageMaker extends BaseClass
 
         $resultsDir = getcwd() . "/screenshots/results/$branchDir";
 
-        // TODO: if one of images is missing, create a blank jpg
-        // can happen on weird timing edge cases, and annoying cos breaks otherwise good run
-
-        // TODO: use imagecreatefrompng() ?
         $baselineImage = @imagecreatefromstring(file_get_contents($baselinePath));
         $branchImage = @imagecreatefromstring(file_get_contents($branchPath));
 
@@ -405,8 +401,6 @@ class ImageMaker extends BaseClass
             }
             unlink(getcwd() . "/screenshots/$dir/$filename");
         }
-        // TODO: move this somewhere a little more sane
-        // need to do this because when doing branch domain after baseline domain post admin resize
         $dim = new WebDriverDimension(1440, 900);
         $this->driver->manage()->window()->setSize($dim);
     }
@@ -512,7 +506,6 @@ EOT
         if (preg_match('%/admin/pages/edit/show/[0-9]+%', $path)) {
 
             // screenshot first tab
-            // TODO: normalise URL segment domains
             $this->browserPilot->waitUntilPageLoaded();
             $this->takeScreenshot(false);
             $this->screenshotGridfield($gridFieldAssoc);
@@ -554,7 +547,7 @@ EOT
             return table ? table.parentNode.id : '';
 EOT;
         $id = $this->browserPilot->executeJS($js);
-        echo "id:$id\n";
+        debug("id:$id");
         if (!$id || array_key_exists($id, $gridFieldAssoc)) {
             return;
         }
@@ -563,7 +556,7 @@ EOT;
         }
         $selector = '#Root div[style="display: block;"] .ss-gridfield-table .ss-gridfield-item td';
         $hasAtLeastOneRow = $this->browserPilot->executeJS("return document.querySelector('$selector') ? 1 : 0;");
-        echo "hasAtLeastOneRow:$hasAtLeastOneRow\n";
+        debug("hasAtLeastOneRow:$hasAtLeastOneRow");
         if (!$hasAtLeastOneRow) {
             return;
         }

@@ -26,12 +26,15 @@ class ResultsMaker extends BaseClass
             if (strtolower(pathinfo($filename, PATHINFO_EXTENSION)) != 'png') {
                 continue;
             }
+            $path = '/' . str_replace('|', '/', $filename);
+            $path = str_replace('.png', '', $path);
             $montageFilename = $imageMaker->createDiffAndMontageImages($filename, $baselineDomain, $branchDomain);
             $thumbFilename = $imageMaker->getThumbPath($montageFilename);
             $imageHtml = file_get_contents('templates/screenshot.html');
             $imageHtml = str_replace('%src%', $montageFilename, $imageHtml);
             $imageHtml = str_replace('%thumbsrc%', $thumbFilename, $imageHtml);
             $imageHtml = str_replace('%filename%', $montageFilename, $imageHtml);
+            $imageHtml = str_replace('%path%', $path, $imageHtml);
             $imageHtmls .= $imageHtml . "\n";
         }
         $html = file_get_contents('templates/results.html');

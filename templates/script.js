@@ -31,7 +31,7 @@ function getPrevNextImgs() {
 function showImage(img) {
     modal.style.display = 'block';
     var src = img.src.replace('/thumb-', '/');
-    modalLink.href = src;
+    modalLink.href = src + '?path=' + img.getAttribute('data-path');
     modalImage.src = src;
     modalCaption.innerHTML = img.alt;
     var imgs = getPrevNextImgs();

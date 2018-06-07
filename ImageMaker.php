@@ -233,10 +233,21 @@ class ImageMaker extends BaseClass
 
         $resultsDir = getcwd() . "/screenshots/results/$branchDir";
 
+        // baseline image will always exist because that's the directory we're looping
+        // in createResults()
         $baselineImage = @imagecreatefromstring(file_get_contents($baselinePath));
-        $branchImage = @imagecreatefromstring(file_get_contents($branchPath));
 
-        // check if we were given garbage
+        if (file_exists($branchPath)) {
+            $branchImage = @imagecreatefromstring(file_get_contents($branchPath));
+        } else {
+            // create branch image if it doesn't exist as a blank white image
+            log("$branchPath does not exist, using blank white image instead");
+            $branchImage = imagecreatetruecolor(imagesx($baselineImage), imagesy($baselineImage));
+            $white = imagecolorallocate($branchImage, 255, 255, 255);
+            imagefill($branchImage, 0, 0, $white);
+        }
+
+        // verify images are working properly
         if (!$baselineImage) {
             log("$baselinePath is not a valid image");
             die;

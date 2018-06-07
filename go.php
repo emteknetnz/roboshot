@@ -3,7 +3,7 @@
 /* TODO:
 
 # Backend features
-- createDiffAndMontageImages() - if one of images is missing, create a blank jpg
+-
 
 # Frontend features
 - checkbox in js modal default true that left/right arrows go to next non-0000 no diff image
@@ -44,7 +44,9 @@ function log($str, $trace = null) {
     $line = $trace['line'];
     preg_match('%/([A-Z\.a-z]+)$%', $trace['file'], $match);
     $file = $match[1];
-    echo "$file:$line -- $str\n";
+    $fileline = "$file:$line";
+    $fileline = str_pad($fileline, 20, ' ', STR_PAD_RIGHT);
+    echo "$fileline -- $str\n";
 }
 
 function debug($str) {

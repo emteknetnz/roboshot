@@ -508,8 +508,17 @@ EOT
 
         if (preg_match('%/admin/pages/edit/show/[0-9]+%', $path)) {
 
-            // screenshot first tab
             $this->browserPilot->waitUntilPageLoaded();
+
+            // normalise URL Segment
+            $this->browserPilot->executeJS(<<<EOT
+                var link = document.querySelector('a.preview');
+                if (link) {
+                    link.innerHTML = link.innerHTML.replace(/^http(s)?:\/\/[^\/]+\//, 'http://roboshot.nz/');
+                }
+EOT
+            );
+
             $this->takeScreenshot(false);
             $this->screenshotGridfield($gridFieldAssoc);
 

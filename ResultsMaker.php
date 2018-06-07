@@ -21,7 +21,7 @@ class ResultsMaker extends BaseClass
         $imageMaker = new ImageMaker();
         list($baselineDir) = $this->getDirAndFilename($baselineDomain, '/');
         $baselineFiles = scandir(getcwd() . "/screenshots/$baselineDir");
-        $imageHtmls = '';
+        $imageHtmls = [];
         foreach($baselineFiles as $filename) {
             if (strtolower(pathinfo($filename, PATHINFO_EXTENSION)) != 'png') {
                 continue;
@@ -35,10 +35,10 @@ class ResultsMaker extends BaseClass
             $imageHtml = str_replace('%thumbsrc%', $thumbFilename, $imageHtml);
             $imageHtml = str_replace('%filename%', $montageFilename, $imageHtml);
             $imageHtml = str_replace('%path%', $path, $imageHtml);
-            $imageHtmls .= $imageHtml . "\n";
+            $imageHtmls[] = $imageHtml;
         }
         $html = file_get_contents('templates/results.html');
-        $html = str_replace('%images%', $imageHtmls, $html);
+        $html = str_replace('%images%', implode("\n", $imageHtmls), $html);
         file_put_contents("$resultsDir/results.html", $html);
         copy('templates/styles.css', "$resultsDir/styles.css");
         copy('templates/script.js', "$resultsDir/script.js");

@@ -233,14 +233,21 @@ class ImageMaker extends BaseClass
 
         $resultsDir = getcwd() . "/screenshots/results/$branchDir";
 
-        // TODO: if one of images is missing, create a blank jpg
-        // can happen on weird timing edge cases, and annoying cos breaks otherwise good run
+        // baseline image will always exist because that's the directory we're looping
+        // in createResults()
+        $baselineImage = imagecreatefrompng($baselinePath);
 
-        // TODO: use imagecreatefrompng() ?
-        $baselineImage = @imagecreatefromstring(file_get_contents($baselinePath));
-        $branchImage = @imagecreatefromstring(file_get_contents($branchPath));
+        if (file_exists($branchPath)) {
+            $branchImage = imagecreatefrompng($branchPath);
+        } else {
+            // create branch image if it doesn't exist as a blank white image
+            log("$branchPath does not exist, using blank white image instead");
+            $branchImage = imagecreatetruecolor(imagesx($baselineImage), imagesy($baselineImage));
+            $white = imagecolorallocate($branchImage, 255, 255, 255);
+            imagefill($branchImage, 0, 0, $white);
+        }
 
-        // check if we were given garbage
+        // verify images are working properly
         if (!$baselineImage) {
             log("$baselinePath is not a valid image");
             die;
@@ -314,7 +321,7 @@ class ImageMaker extends BaseClass
 
         $percDiffFourDP = preg_replace('%[01]\.([0-9]{4})%', '$1', number_format($percDiff, 4));
 
-        $diffFilename = preg_replace('%^(.+?)\.png%', "diff-$1-$percDiffFourDP.png", $filename);
+        $diffFilename = preg_replace('%^(.+?)\.png%', "diff-$percDiffFourDP-|$1.png", $filename);
 
         $diffPath = "$resultsDir/$diffFilename";
 
@@ -356,7 +363,7 @@ class ImageMaker extends BaseClass
         imagecopy($montageImage, $branchImage, $baselineWidth, 0, 0, 0, $branchWidth, $branchHeight);
         imagecopy($montageImage, $diffImage, $baselineWidth + $branchWidth, 0, 0, 0, $diffWidth, $diffHeight);
 
-        $montagePath = str_replace('diff-', 'montage-', $diffPath);
+        $montagePath = str_replace('diff-', '', $diffPath);
 
         imagepng($montageImage, $montagePath);
         imagedestroy($montageImage);
@@ -405,8 +412,6 @@ class ImageMaker extends BaseClass
             }
             unlink(getcwd() . "/screenshots/$dir/$filename");
         }
-        // TODO: move this somewhere a little more sane
-        // need to do this because when doing branch domain after baseline domain post admin resize
         $dim = new WebDriverDimension(1440, 900);
         $this->driver->manage()->window()->setSize($dim);
     }
@@ -426,17 +431,20 @@ class ImageMaker extends BaseClass
         $gridFieldAssoc = [];
         $driver = $this->browserPilot->getDriver();
 
-        if (!preg_match('%\.(test|vagrant|local)%', $driver->getCurrentURL())) {
-            echo "Can only screenshot local admin\n";
+        $currentURL = $driver->getCurrentURL();
+
+        $rx = '%\.(govt|com|org|mil|nz|uat|prod|cwp)%';
+        if (preg_match('%\.(govt|com|org|mil|nz|uat|prod|cwp)%', $currentURL)) {
+            log('Can only screenshot local admin');
+            log("$currentURL matched regex $rx");
             return;
         }
 
         // login to admin
-        // currently will only work on local dev
-        if (preg_match('%/Security/login%', $driver->getCurrentURL())) {
-            $driver->findElement(WebDriverBy::id('MemberLoginForm_LoginForm_Email'))->sendKeys('admin');
-            $driver->findElement(WebDriverBy::id('MemberLoginForm_LoginForm_Password'))->sendKeys('password');
-            $driver->findElement(WebDriverBy::id('MemberLoginForm_LoginForm_action_dologin'))->click();
+        if (preg_match('%/Security/login%', $currentURL)) {
+            $driver->findElement(WebDriverBy::id(LOGIN_USERNAME_ID))->sendKeys(ADMIN_USERNAME);
+            $driver->findElement(WebDriverBy::id(LOGIN_PASSWORD_ID))->sendKeys(ADMIN_PASSWORD);
+            $driver->findElement(WebDriverBy::id(LOGIN_SUBMIT_ID))->click();
         }
 
         // clear window to small for preview mode popup
@@ -475,20 +483,53 @@ EOT
 
             // navigate to each model admin and take screenshot
             foreach ($ids as $id) {
+                log("Clicking model admin $id");
                 $this->browserPilot->executeJS(<<<EOT
                     document.getElementById('$id').querySelector('a').click();
 EOT
                 );
                 $this->browserPilot->waitUntilPageLoaded();
                 $this->takeScreenshot(false);
+
+                // get ids of all model admin tabs
+                $tabIDsJoined = $this->browserPilot->executeJS(<<<EOT
+                    var ids = [];
+                    var selector = '.cms-tabset-nav-primary.ui-tabs-nav a';
+                    var links = document.querySelectorAll(selector);
+                    for (var i = 0; i < links.length; i++) {
+                        var link = links[i];
+                        if (link.innerText == 'Main') {
+                            continue;
+                        }
+                        ids.push(link.id);
+                    }
+                    return ids.join(';');
+EOT
+                );
+                $tabIDs = explode(';', $tabIDsJoined);
+
+                foreach ($tabIDs as $tabID) {
+                    $this->browserPilot->executeJS("document.getElementById('$tabID').click();");
+                    $this->browserPilot->waitUntilPageLoaded();
+                    $this->takeScreenshot(false);
+                    $this->screenshotGridfield($gridFieldAssoc);
+                }
             }
         }
 
         if (preg_match('%/admin/pages/edit/show/[0-9]+%', $path)) {
 
-            // screenshot first tab
-            // TODO: normalise URL segment domains
             $this->browserPilot->waitUntilPageLoaded();
+
+            // normalise URL Segment
+            $this->browserPilot->executeJS(<<<EOT
+                var link = document.querySelector('a.preview');
+                if (link) {
+                    link.innerHTML = link.innerHTML.replace(/^http(s)?:\/\/[^\/]+\//, 'http://roboshot.nz/');
+                }
+EOT
+            );
+
             $this->takeScreenshot(false);
             $this->screenshotGridfield($gridFieldAssoc);
 
@@ -529,7 +570,7 @@ EOT
             return table ? table.parentNode.id : '';
 EOT;
         $id = $this->browserPilot->executeJS($js);
-        echo "id:$id\n";
+        debug("id:$id");
         if (!$id || array_key_exists($id, $gridFieldAssoc)) {
             return;
         }
@@ -538,7 +579,7 @@ EOT;
         }
         $selector = '#Root div[style="display: block;"] .ss-gridfield-table .ss-gridfield-item td';
         $hasAtLeastOneRow = $this->browserPilot->executeJS("return document.querySelector('$selector') ? 1 : 0;");
-        echo "hasAtLeastOneRow:$hasAtLeastOneRow\n";
+        debug("hasAtLeastOneRow:$hasAtLeastOneRow");
         if (!$hasAtLeastOneRow) {
             return;
         }

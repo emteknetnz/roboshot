@@ -32,6 +32,7 @@ class BrowserPilot extends BaseClass
      */
     function get($path)
     {
+        log('Navigating to ' . $this->domain . $path);
         $this->driver->get($this->domain . $path);
         $this->waitUntilPageLoaded();
     }
@@ -43,11 +44,16 @@ class BrowserPilot extends BaseClass
     {
         sleep(1);
         $resourceCount = -1;
-        for ($i = 0; $i < 20; $i++) {
+        for ($i = 0; $i < 30; $i++) {
             $newResourceCount = $this->executeJS("return window.performance.getEntriesByType('resource').length;");
             if ($newResourceCount != $resourceCount) {
                 sleep(1);
                 $resourceCount = $newResourceCount;
+                continue;
+            }
+            $cmsSpinnerExists = $this->executeJS("return document.querySelector('.cms-content-loading-spinner') ? 1 : 0;");
+            if ($cmsSpinnerExists) {
+                sleep(1);
                 continue;
             }
             $resourcesLoaded = $this->executeJS(<<<EOT
@@ -70,6 +76,7 @@ EOT
                 return;
             }
         }
+        log("! Page did not fully load after 30 seconds");
     }
 
     /**

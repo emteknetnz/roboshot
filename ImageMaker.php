@@ -431,9 +431,9 @@ class ImageMaker extends BaseClass
 
         // login to admin
         if (preg_match('%/Security/login%', $currentURL)) {
-            $driver->findElement(WebDriverBy::id('MemberLoginForm_LoginForm_Email'))->sendKeys('admin');
-            $driver->findElement(WebDriverBy::id('MemberLoginForm_LoginForm_Password'))->sendKeys('password');
-            $driver->findElement(WebDriverBy::id('MemberLoginForm_LoginForm_action_dologin'))->click();
+            $driver->findElement(WebDriverBy::id(LOGIN_USERNAME_ID))->sendKeys(ADMIN_USERNAME);
+            $driver->findElement(WebDriverBy::id(LOGIN_PASSWORD_ID))->sendKeys(ADMIN_PASSWORD);
+            $driver->findElement(WebDriverBy::id(LOGIN_SUBMIT_ID))->click();
         }
 
         // clear window to small for preview mode popup

@@ -15,3 +15,12 @@ define('PATHS', serialize([
     '/admin'
 ]));
 
+// Admin credentials
+define('ADMIN_USERNAME', 'admin');
+define('ADMIN_PASSWORD', 'password');
+
+// ID's of elements on /Security/login
+define('LOGIN_USERNAME_ID', 'MemberLoginForm_LoginForm_Email');
+define('LOGIN_PASSWORD_ID', 'MemberLoginForm_LoginForm_Password');
+define('LOGIN_SUBMIT_ID', 'MemberLoginForm_LoginForm_action_dologin');
+

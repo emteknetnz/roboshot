@@ -3,9 +3,7 @@
 /* TODO:
 
 # Backend features
-- config for admin/password credentials
-- config for ids on security login
-- show line number and filename of call in log() and debug()
+-
 
 # Frontend features
 - normalise URL segment domains
@@ -43,14 +41,19 @@ if (isset($_SERVER['OS']) && $_SERVER['OS'] == 'Windows_NT') {
 }
 
 // logging functions
-function log($str) {
-    echo "$str\n";
+function log($str, $trace = null) {
+    if (!$trace) {
+        $trace = debug_backtrace()[0];
+    }
+    $line = $trace['line'];
+    preg_match('%/([A-Z\.a-z]+)$%', $trace['file'], $match);
+    $file = $match[1];
+    echo "$file:$line -- $str\n";
 }
 
 function debug($str) {
-    global $showDebug;
-    if ($showDebug) {
-        log($str);
+    if (SHOW_DEBUG) {
+        log($str, debug_backtrace()[0]);
     }
 }
 

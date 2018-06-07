@@ -6,7 +6,6 @@
 -
 
 # Frontend features
-- put filename to top of screenshot template
 - when clicking on image to open in new tab, suffix ?path=/admin/pages/edit.. etc, from /montage-admin-pages-edit-EditForm-326-fi... (get the path into the template as data-path)
 - checkbox in js modal default true that left/right arrows go to next non-0000 no diff image
 - make the results template non ugly

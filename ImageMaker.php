@@ -321,7 +321,7 @@ class ImageMaker extends BaseClass
 
         $percDiffFourDP = preg_replace('%[01]\.([0-9]{4})%', '$1', number_format($percDiff, 4));
 
-        $diffFilename = preg_replace('%^(.+?)\.png%', "diff-$percDiffFourDP-$1.png", $filename);
+        $diffFilename = preg_replace('%^(.+?)\.png%', "diff-$percDiffFourDP-|$1.png", $filename);
 
         $diffPath = "$resultsDir/$diffFilename";
 
@@ -363,7 +363,7 @@ class ImageMaker extends BaseClass
         imagecopy($montageImage, $branchImage, $baselineWidth, 0, 0, 0, $branchWidth, $branchHeight);
         imagecopy($montageImage, $diffImage, $baselineWidth + $branchWidth, 0, 0, 0, $diffWidth, $diffHeight);
 
-        $montagePath = str_replace('diff-', 'montage-', $diffPath);
+        $montagePath = str_replace('diff-', '', $diffPath);
 
         imagepng($montageImage, $montagePath);
         imagedestroy($montageImage);

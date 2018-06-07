@@ -37,6 +37,8 @@ class ResultsMaker extends BaseClass
             $imageHtml = str_replace('%path%', $path, $imageHtml);
             $imageHtmls[] = $imageHtml;
         }
+        // reverse sort array so most different diff's are first
+        rsort($imageHtmls);
         $html = file_get_contents('templates/results.html');
         $html = str_replace('%images%', implode("\n", $imageHtmls), $html);
         file_put_contents("$resultsDir/results.html", $html);

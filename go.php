@@ -10,7 +10,6 @@
 - make the results template non ugly
 
 # Refactoring
-- replace imagecreatefromstring() with imagecreatefrompng()
 - deletePreviousImages() - move resize 1440 - done there because when doing branch domain after baseline domain post admin resize
 - change lol $imageHtmls .= in createResults() to an array push
 

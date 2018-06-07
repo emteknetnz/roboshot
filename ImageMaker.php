@@ -235,10 +235,10 @@ class ImageMaker extends BaseClass
 
         // baseline image will always exist because that's the directory we're looping
         // in createResults()
-        $baselineImage = @imagecreatefromstring(file_get_contents($baselinePath));
+        $baselineImage = imagecreatefrompng($baselinePath);
 
         if (file_exists($branchPath)) {
-            $branchImage = @imagecreatefromstring(file_get_contents($branchPath));
+            $branchImage = imagecreatefrompng($branchPath);
         } else {
             // create branch image if it doesn't exist as a blank white image
             log("$branchPath does not exist, using blank white image instead");

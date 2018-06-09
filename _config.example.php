@@ -24,3 +24,4 @@ define('LOGIN_USERNAME_ID', 'MemberLoginForm_LoginForm_Email');
 define('LOGIN_PASSWORD_ID', 'MemberLoginForm_LoginForm_Password');
 define('LOGIN_SUBMIT_ID', 'MemberLoginForm_LoginForm_action_dologin');
 
+define('ROOT_DIR', __DIR__);

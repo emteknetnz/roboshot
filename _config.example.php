@@ -7,7 +7,7 @@ define('SCREENSHOT_BASELINE', true);
 define('SCREENSHOT_BRANCH', true);
 define('CREATE_RESULTS', true);
 
-define('SHOW_DEBUG', false);
+define('LOG_LEVEL', Monolog\Logger::INFO);
 
 define('PATHS', serialize([
     '/',

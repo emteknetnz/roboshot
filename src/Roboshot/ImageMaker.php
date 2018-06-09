@@ -26,54 +26,57 @@ class ImageMaker extends BaseClass
     {
         $url = $this->driver->getCurrentURL();
         $path = parse_url($url)['path'];
-        log("Taking screenshot of {$this->domain}{$path}");
+        Logger::get()->info("Taking screenshot of {$this->domain}{$path}");
         list($dir, $filename) = $this->getDirAndFilename($this->domain, $path);
         $pilot = $this->browserPilot;
 
         // create screenshot directory
-        if (!file_exists("screenshots/$dir")) {
-            mkdir("screenshots/$dir");
+        if (!file_exists(ROOT_DIR."/screenshots/$dir")) {
+            mkdir(ROOT_DIR."/screenshots/$dir");
         }
 
         // for admin urls, suffix number for duplicate filenames
         // using _ as part of suffix instead of - because /admin/pages/edit/show/1 filename is admin-pages-edit-show-1
         $c = 1;
-        while (file_exists("screenshots/$dir/$filename")) {
+        while (file_exists(ROOT_DIR."/screenshots/$dir/$filename")) {
             $filename = preg_replace('%_[0-9]+\.png$%', '.png', $filename);
             $filename = preg_replace('%\.png$%', "_$c.png", $filename);
             $c++;
         }
+
+        // Save the source code of the current path
+        file_put_contents(ROOT_DIR."/screenshots/$dir/$filename.html", $this->driver->getPageSource());
 
         // scroll to top of page
         $pilot->executeJS("window.scrollTo(0, 0);");
 
         // for /admin, take screenshot of above the fold content only
         if (!$takeFullPageScreenshot) {
-            $this->driver->takeScreenshot("screenshots/$dir/$filename");
+            $this->driver->takeScreenshot(ROOT_DIR."/screenshots/$dir/$filename");
             return;
         }
 
         // get document and viewport heights
         $documentHeight = $pilot->executeJS("return document.documentElement.scrollHeight;");
         $viewportHeight = $pilot->executeJS("return window.innerHeight;");
-        debug("documentHeight = $documentHeight");
-        debug("viewportHeight = $viewportHeight");
+        Logger::get()->debug("documentHeight = $documentHeight");
+        Logger::get()->debug("viewportHeight = $viewportHeight");
 
         // take initial screenshot
-        $this->driver->takeScreenshot("screenshots/$dir/temp-$filename");
-        $tempFile = imagecreatefrompng("screenshots/$dir/temp-$filename");
+        $this->driver->takeScreenshot(ROOT_DIR."/screenshots/$dir/temp-$filename");
+        $tempFile = imagecreatefrompng(ROOT_DIR."/screenshots/$dir/temp-$filename");
 
         // get image dimensions
         $imageWidth = imagesx($tempFile);
         $imageHeight = imagesy($tempFile);
-        debug("imageWidth = $imageWidth");
-        debug("imageHeight = $imageHeight");
+        Logger::get()->debug("imageWidth = $imageWidth");
+        Logger::get()->debug("imageHeight = $imageHeight");
 
         // this is 0.5 (2x pixels) on ios chrome retina e.g
         // $viewportHeight = 619
         // $imageHeight = 1238
         $imageRatio = $imageHeight / $viewportHeight;
-        debug("imageRatio = $imageRatio");
+        Logger::get()->debug("imageRatio = $imageRatio");
 
         if ($imageRatio != 1) {
             $tmp = imagescale($tempFile, floor($imageWidth / 2));
@@ -81,14 +84,14 @@ class ImageMaker extends BaseClass
             $tempFile = $tmp;
             $imageWidth = imagesx($tempFile);
             $imageHeight = imagesy($tempFile);
-            debug("new imageWidth = $imageWidth");
-            debug("new imageHeight = $imageHeight");
+            Logger::get()->debug("new imageWidth = $imageWidth");
+            Logger::get()->debug("new imageHeight = $imageHeight");
         }
 
         if ($viewportHeight >= $documentHeight) {
             // ^ document fits in viewport
 
-            imagepng($tempFile, "screenshots/$dir/$filename");
+            imagepng($tempFile, ROOT_DIR."/screenshots/$dir/$filename");
 
         } else {
             // ^ take multiple screenshots and join them together
@@ -104,13 +107,13 @@ class ImageMaker extends BaseClass
                 // scroll the browser window
                 $pilot->executeJS("window.scrollBy(0, $viewportHeight);");
                 $scrollTop = $pilot->executeJS("return document.documentElement.scrollTop");
-                debug("scrollTop = $scrollTop");
+                Logger::get()->debug("scrollTop = $scrollTop");
 
                 $scrollAmount = $scrollTop - $prevScrollTop;
-                debug("scrollAmount = $scrollAmount");
+                Logger::get()->debug("scrollAmount = $scrollAmount");
 
                 if ($scrollAmount == 0) {
-                    debug("No more scrolling possible, breaking");
+                    Logger::get()->debug("No more scrolling possible, breaking");
                     break;
                 }
 
@@ -119,9 +122,9 @@ class ImageMaker extends BaseClass
                 $cc = str_pad($c, 2, '0', STR_PAD_LEFT);
 
                 // create a new viewport image
-                debug("Taking viewport screenshot to add to composite image");
-                $this->driver->takeScreenshot("screenshots/$dir/view-$cc-$filename");
-                $viewportImage = imagecreatefrompng("screenshots/$dir/view-$cc-$filename");
+                Logger::get()->debug("Taking viewport screenshot to add to composite image");
+                $this->driver->takeScreenshot(ROOT_DIR."/screenshots/$dir/view-$cc-$filename");
+                $viewportImage = imagecreatefrompng(ROOT_DIR."/screenshots/$dir/view-$cc-$filename");
 
                 if ($imageRatio != 1) {
                     $tmp = imagescale($viewportImage, $imageWidth);
@@ -136,39 +139,39 @@ class ImageMaker extends BaseClass
                     // offset top of source image for last image in composite
                     $viewportImageOffsetY = $viewportHeight - $scrollTop % $viewportHeight;
                 }
-                debug("viewportImageOffsetY = $viewportImageOffsetY");
+                Logger::get()->debug("viewportImageOffsetY = $viewportImageOffsetY");
 
                 // copy the viewport image on to the composite image
                 imagecopy($compositeImage, $viewportImage, 0, $c * $imageHeight, 0, $viewportImageOffsetY, $imageWidth, $imageHeight);
 
                 // delete viewport image
                 imagedestroy($viewportImage);
-                unlink("screenshots/$dir/view-$cc-$filename");
+                unlink(ROOT_DIR."/screenshots/$dir/view-$cc-$filename");
 
                 // over 10k break - over this will causes memory issues for 3x montage image
                 if ($scrollTop > 10000) {
-                    log("scrollTop > 10000, breaking");
+                    Logger::get()->debug("scrollTop > 10000, breaking");
                     break;
                 }
 
                 // safety break
                 if (++$c > 20) {
-                    log("c > 20, safety breaking");
+                    Logger::get()->debug("c > 20, safety breaking");
                     break;
                 }
 
                 $prevScrollTop = $scrollTop;
-                debug("prevScrollTop = $prevScrollTop");
+                Logger::get()->debug("prevScrollTop = $prevScrollTop");
             }
 
             // write composite image to disk
-            imagepng($compositeImage, "screenshots/$dir/$filename");
+            imagepng($compositeImage, ROOT_DIR."/screenshots/$dir/$filename");
             imagedestroy($compositeImage);
         }
 
         // delete temp file
         imagedestroy($tempFile);
-        unlink("screenshots/$dir/temp-$filename");
+        unlink(ROOT_DIR."/screenshots/$dir/temp-$filename");
     }
 
     /**
@@ -224,14 +227,12 @@ class ImageMaker extends BaseClass
         list($baselineDir) = $this->getDirAndFilename($baselineDomain, '/');
         list($branchDir) = $this->getDirAndFilename($branchDomain, '/');
 
-        $baselinePath = getcwd() . "/screenshots/$baselineDir/$filename";
-        $branchPath = getcwd() . "/screenshots/$branchDir/$filename";
+        $baselinePath = ROOT_DIR . "/screenshots/$baselineDir/$filename";
+        $branchPath = ROOT_DIR . "/screenshots/$branchDir/$filename";
 
-        log("Comparing images:");
-        log($baselinePath);
-        log($branchPath);
+        Logger::get()->info("Comparing images $baselinePath and $branchPath");
 
-        $resultsDir = getcwd() . "/screenshots/results/$branchDir";
+        $resultsDir = ROOT_DIR . "/screenshots/results/$branchDir";
 
         // baseline image will always exist because that's the directory we're looping
         // in createResults()
@@ -241,7 +242,7 @@ class ImageMaker extends BaseClass
             $branchImage = imagecreatefrompng($branchPath);
         } else {
             // create branch image if it doesn't exist as a blank white image
-            log("$branchPath does not exist, using blank white image instead");
+            Logger::get()->warn("$branchPath does not exist, using blank white image instead");
             $branchImage = imagecreatetruecolor(imagesx($baselineImage), imagesy($baselineImage));
             $white = imagecolorallocate($branchImage, 255, 255, 255);
             imagefill($branchImage, 0, 0, $white);
@@ -249,11 +250,11 @@ class ImageMaker extends BaseClass
 
         // verify images are working properly
         if (!$baselineImage) {
-            log("$baselinePath is not a valid image");
+            Logger::get()->warn("$baselinePath is not a valid image");
             die;
         }
         if (!$branchImage) {
-            log("$branchPath is not a valid image");
+            Logger::get()->warn("$branchPath is not a valid image");
             die;
         }
 
@@ -317,7 +318,7 @@ class ImageMaker extends BaseClass
 
         $total = $baselineImageWidth * $baselineImageHeight;
         $percDiff = $numberOfDifferentPixels / $total;
-        log(number_format(100 * $percDiff, 2) . "% different");
+        Logger::get()->debug(number_format(100 * $percDiff, 2) . "% different");
 
         $percDiffFourDP = preg_replace('%[01]\.([0-9]{4})%', '$1', number_format($percDiff, 4));
 
@@ -402,15 +403,15 @@ class ImageMaker extends BaseClass
      */
     public function deletePreviousImages() {
         list($dir) = $this->getDirAndFilename($this->domain, '/');
-        if (!file_exists(getcwd() . "/screenshots/$dir")) {
+        if (!file_exists(ROOT_DIR . "/screenshots/$dir")) {
             return;
         }
-        $baselineFiles = scandir(getcwd() . "/screenshots/$dir");
+        $baselineFiles = scandir(ROOT_DIR . "/screenshots/$dir");
         foreach($baselineFiles as $filename) {
             if (strtolower(pathinfo($filename, PATHINFO_EXTENSION)) != 'png') {
                 continue;
             }
-            unlink(getcwd() . "/screenshots/$dir/$filename");
+            unlink(ROOT_DIR . "/screenshots/$dir/$filename");
         }
         $dim = new WebDriverDimension(1440, 900);
         $this->driver->manage()->window()->setSize($dim);
@@ -435,8 +436,7 @@ class ImageMaker extends BaseClass
 
         $rx = '%\.(govt|com|org|mil|nz|uat|prod|cwp)%';
         if (preg_match('%\.(govt|com|org|mil|nz|uat|prod|cwp)%', $currentURL)) {
-            log('Can only screenshot local admin');
-            log("$currentURL matched regex $rx");
+            Logger::get()->warn("Can only screenshot local admin, $currentURL matched regex $rx");
             return;
         }
 
@@ -483,7 +483,7 @@ EOT
 
             // navigate to each model admin and take screenshot
             foreach ($ids as $id) {
-                log("Clicking model admin $id");
+                Logger::get()->debug("Clicking model admin $id");
                 $this->browserPilot->executeJS(<<<EOT
                     document.getElementById('$id').querySelector('a').click();
 EOT
@@ -570,7 +570,7 @@ EOT
             return table ? table.parentNode.id : '';
 EOT;
         $id = $this->browserPilot->executeJS($js);
-        debug("id:$id");
+        Logger::get()->debug("id:$id");
         if (!$id || array_key_exists($id, $gridFieldAssoc)) {
             return;
         }
@@ -579,7 +579,7 @@ EOT;
         }
         $selector = '#Root div[style="display: block;"] .ss-gridfield-table .ss-gridfield-item td';
         $hasAtLeastOneRow = $this->browserPilot->executeJS("return document.querySelector('$selector') ? 1 : 0;");
-        debug("hasAtLeastOneRow:$hasAtLeastOneRow");
+        Logger::get()->debug("hasAtLeastOneRow:$hasAtLeastOneRow");
         if (!$hasAtLeastOneRow) {
             return;
         }

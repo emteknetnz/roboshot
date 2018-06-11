@@ -16,9 +16,6 @@ require_once '_config.php';
 use Facebook\WebDriver\Chrome\ChromeDriverService;
 use Monolog\Handler\StreamHandler;
 
-// Output our logs to the console
-\Roboshot\Logger::get()->pushHandler(new StreamHandler('php://stdout', LOG_LEVEL));
-
 # === SCRIPT ============
 ini_set('memory_limit', '1024M');
 $var = ChromeDriverService::CHROME_DRIVER_EXE_PROPERTY;

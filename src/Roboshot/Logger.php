@@ -37,5 +37,17 @@ class Logger {
      */
     public static function createLogger() {
         self::$logger = new Monolog\Logger(__NAMESPACE__);
+
+        // Output our logs to the console
+        $handler = new Monolog\Handler\StreamHandler('php://stdout', LOG_LEVEL);
+
+        // custom format - remove namespace
+        $format = "[%datetime%] %level_name%: %message% %context% %extra%\n";
+
+        // remove empty content/extra [] [] from output
+        $formatter = new Monolog\Formatter\LineFormatter($format, null, false, true);
+        $handler->setFormatter($formatter);
+
+        self::$logger->pushHandler($handler);
     }
 }

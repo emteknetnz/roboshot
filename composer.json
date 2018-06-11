@@ -9,7 +9,13 @@
   ],
   "require": {
     "php": ">=5.6",
-    "facebook/webdriver": "1.5.0"
+    "facebook/webdriver": "1.5.0",
+    "monolog/monolog": "^1.23"
+  },
+  "autoload": {
+    "psr-4": {
+      "Roboshot\\": "src/Roboshot"
+    }
   },
   "minimum-stability": "dev",
   "prefer-stable": true

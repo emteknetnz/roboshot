@@ -1,15 +1,11 @@
 <?php
 
 /* TODO:
-
-# Backend features
--
-
-# Frontend features
+- normalise urlsegments on dependent pages page tab
+- use | in filenames for admin urls
+- show the ?path thing in the modal cation id="modal-path" new element
 - checkbox in js modal default true that left/right arrows go to next non-0000 no diff image
 - make the results template non ugly
-
-# Refactoring
 - deletePreviousImages() - move resize 1440 - done there because when doing branch domain after baseline domain post admin resize
 
 */

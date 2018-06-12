@@ -32,7 +32,8 @@ class BrowserPilot extends BaseClass
      */
     function get($path)
     {
-        log('Navigating to ' . $this->domain . $path);
+        Logger::get()->info('Navigating to ' . $this->domain . $path);
+
         $this->driver->get($this->domain . $path);
         $this->waitUntilPageLoaded();
     }
@@ -76,7 +77,8 @@ EOT
                 return;
             }
         }
-        log("! Page did not fully load after 30 seconds");
+
+        Logger::get()->warn("Page did not fully load after 30 seconds");
     }
 
     /**
@@ -107,6 +109,7 @@ EOT
      */
     function close()
     {
+        Logger::get()->debug('Closing the browser');
         $this->driver->close();
     }
 

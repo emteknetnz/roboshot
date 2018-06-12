@@ -3,6 +3,7 @@
 namespace Roboshot;
 
 use Facebook\WebDriver\Chrome\ChromeDriver;
+use Monolog\Logger;
 
 class BaseClass
 {
@@ -16,6 +17,11 @@ class BaseClass
      * @var string
      */
     protected $domain;
+
+    /**
+     * @var Logger
+     */
+    protected $log;
 
     /**
      * @param ChromeDriver $driver
@@ -47,6 +53,23 @@ class BaseClass
     function getDomain()
     {
         return $this->domain;
+    }
+
+    /**
+     * @return Logger
+     */
+    public function getLogger() {
+        return $this->log;
+    }
+
+    /**
+     * @param Logger $log
+     * @return BaseClass
+     */
+    public function setLogger($log) {
+        $this->log = $log;
+
+        return $this;
     }
 
     /**

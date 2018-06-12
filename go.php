@@ -6,7 +6,7 @@
 - show the ?path thing in the modal cation id="modal-path" new element
 - checkbox in js modal default true that left/right arrows go to next non-0000 no diff image
 - make the results template non ugly
-- deletePreviousImages() - move resize 1440 - done there because when doing branch domain after baseline domain post admin resize
+- (remove this) deletePreviousImages() - move resize 1440 - done there because when doing branch domain after baseline domain post admin resize
 
 */
 

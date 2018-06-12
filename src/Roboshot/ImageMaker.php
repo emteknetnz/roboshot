@@ -413,7 +413,7 @@ class ImageMaker extends BaseClass
             }
             unlink(ROOT_DIR . "/screenshots/$dir/$filename");
         }
-        $dim = new WebDriverDimension(1440, 900);
+        $dim = new WebDriverDimension(1200, 900);
         $this->driver->manage()->window()->setSize($dim);
     }
 

@@ -572,8 +572,8 @@ EOT;
         $id = $this->browserPilot->executeJS($js);
         Logger::get()->debug("GridField#ID = $id");
         if (!$id || array_key_exists($id, $gridFieldAssoc)) {
-            // shea dawson blocks
-            if ($id != 'Form_EditForm_Blocks') {
+            // shea dawson blocks or dna elemental blocks
+            if ($id != 'Form_EditForm_Blocks' && $id != 'Form_EditForm_ElementArea') {
                 return;
             }
         }
@@ -581,19 +581,19 @@ EOT;
             return;
         }
 
-        $selector = '#Root div[style="display: block;"] .ss-gridfield-table .ss-gridfield-item td';
+        $selector = '#Root .tab[aria-expanded="true"] .ss-gridfield-table .ss-gridfield-item td';
         $hasAtLeastOneRow = $this->browserPilot->executeJS("return document.querySelector('$selector') ? 1 : 0;");
         Logger::get()->debug("hasAtLeastOneRow = $hasAtLeastOneRow");
         if (!$hasAtLeastOneRow) {
             return;
         }
 
-        if ($id == 'Form_EditForm_Blocks') {
-            // sheadawson blocks
-            // this will return Block classes e.g. BasicContent,LocationContent
+        if ($id == 'Form_EditForm_Blocks' || $id == 'Form_EditForm_ElementArea') {
+            // sheadawson blocks or dna elemental blocks
+            // this will return Block/BaseElement classes e.g. BasicContent,LocationContent
             $dataClasses = $this->browserPilot->executeJS(<<<EOT
                 var dataClasses = [];
-                var trs = document.querySelectorAll('#Root div[style="display: block;"] .ss-gridfield-table .ss-gridfield-item');
+                var trs = document.querySelectorAll('#Root .tab[aria-expanded="true"] .ss-gridfield-table .ss-gridfield-item');
                 for (var i = 0; i < trs.length; i++) {
                     var tr = trs[i];
                     var dataClass = tr.getAttribute('data-class');
@@ -607,7 +607,7 @@ EOT
                 if (array_key_exists("$id:$dataClass", $gridFieldAssoc)) {
                     continue;
                 }
-                $sel = "#Root div[style='display: block;'] .ss-gridfield-table tr[data-class='$dataClass']";
+                $sel = "#Root .tab[aria-expanded='true'] .ss-gridfield-table .ss-gridfield-item[data-class='$dataClass']";
                 $this->browserPilot->executeJS("document.querySelector(\"$sel\").click();");
                 $this->browserPilot->waitUntilPageLoaded();
                 $this->takeScreenshot(false);

@@ -570,26 +570,64 @@ EOT
             return table ? table.parentNode.id : '';
 EOT;
         $id = $this->browserPilot->executeJS($js);
-        Logger::get()->debug("id:$id");
+        Logger::get()->debug("GridField#ID = $id");
         if (!$id || array_key_exists($id, $gridFieldAssoc)) {
-            return;
+            // shea dawson blocks
+            if ($id != 'Form_EditForm_Blocks') {
+                return;
+            }
         }
         if ($id == 'Form_EditForm_DependentPages') {
             return;
         }
+
         $selector = '#Root div[style="display: block;"] .ss-gridfield-table .ss-gridfield-item td';
         $hasAtLeastOneRow = $this->browserPilot->executeJS("return document.querySelector('$selector') ? 1 : 0;");
-        Logger::get()->debug("hasAtLeastOneRow:$hasAtLeastOneRow");
+        Logger::get()->debug("hasAtLeastOneRow = $hasAtLeastOneRow");
         if (!$hasAtLeastOneRow) {
             return;
         }
-        $this->browserPilot->executeJS("document.querySelector('$selector').click();");
-        $this->browserPilot->waitUntilPageLoaded();
-        $this->takeScreenshot(false);
 
-        // click back link
-        $this->browserPilot->executeJS("document.querySelector('.backlink').click();");
-        $this->browserPilot->waitUntilPageLoaded();
+        if ($id == 'Form_EditForm_Blocks') {
+            // sheadawson blocks
+            // this will return Block classes e.g. BasicContent,LocationContent
+            $dataClasses = $this->browserPilot->executeJS(<<<EOT
+                var dataClasses = [];
+                var trs = document.querySelectorAll('#Root div[style="display: block;"] .ss-gridfield-table .ss-gridfield-item');
+                for (var i = 0; i < trs.length; i++) {
+                    var tr = trs[i];
+                    var dataClass = tr.getAttribute('data-class');
+                    dataClasses.push(dataClass);
+                }
+                return dataClasses.join(',');
+EOT
+            );
+            Logger::get()->debug("dataClasses = $dataClasses");
+            foreach (explode(',', $dataClasses) as $dataClass) {
+                if (array_key_exists("$id:$dataClass", $gridFieldAssoc)) {
+                    continue;
+                }
+                $sel = "#Root div[style='display: block;'] .ss-gridfield-table tr[data-class='$dataClass']";
+                $this->browserPilot->executeJS("document.querySelector(\"$sel\").click();");
+                $this->browserPilot->waitUntilPageLoaded();
+                $this->takeScreenshot(false);
+
+                // click back link
+                $this->browserPilot->executeJS("document.querySelector('.backlink').click();");
+                $this->browserPilot->waitUntilPageLoaded();
+
+                $gridFieldAssoc["$id:$dataClass"] = true;
+            }
+        } else {
+            // standard gridfield
+            $this->browserPilot->executeJS("document.querySelector('$selector').click();");
+            $this->browserPilot->waitUntilPageLoaded();
+            $this->takeScreenshot(false);
+
+            // click back link
+            $this->browserPilot->executeJS("document.querySelector('.backlink').click();");
+            $this->browserPilot->waitUntilPageLoaded();
+        }
 
         // update assoc
         $gridFieldAssoc[$id] = true;

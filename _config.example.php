@@ -6,6 +6,7 @@ define('BRANCH_DOMAIN', 'http://mysite.test');
 define('SCREENSHOT_BASELINE', true);
 define('SCREENSHOT_BRANCH', true);
 define('CREATE_RESULTS', true);
+define('GET_HTML_SOURCE', false);
 
 define('LOG_LEVEL', Monolog\Logger::INFO);
 

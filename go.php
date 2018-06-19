@@ -17,7 +17,7 @@ use Facebook\WebDriver\Chrome\ChromeDriverService;
 use Monolog\Handler\StreamHandler;
 
 # === SCRIPT ============
-ini_set('memory_limit', '1024M');
+ini_set('memory_limit', '2048M');
 $var = ChromeDriverService::CHROME_DRIVER_EXE_PROPERTY;
 if (isset($_SERVER['OS']) && $_SERVER['OS'] == 'Windows_NT') {
     putenv("$var=webdriver/win32/chromedriver.exe");

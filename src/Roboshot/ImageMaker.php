@@ -21,8 +21,9 @@ class ImageMaker extends BaseClass
      * Take a screenshot of the what is current in the browser and save it to disk
      *
      * @param bool $takeFullPageScreenshot
+     * @param string $fileSuffix
      */
-    public function takeScreenshot($takeFullPageScreenshot = true)
+    public function takeScreenshot($takeFullPageScreenshot = true, $fileSuffix = '')
     {
         $url = $this->driver->getCurrentURL();
         $path = parse_url($url)['path'];
@@ -35,6 +36,11 @@ class ImageMaker extends BaseClass
             mkdir(ROOT_DIR."/screenshots/$dir");
         }
 
+        // optionally suffix filename - used for admin tabs
+        if ($fileSuffix) {
+            $filename = preg_replace('%\.png$%', "_$fileSuffix.png", $filename);
+        }
+
         // for admin urls, suffix number for duplicate filenames
         // using _ as part of suffix instead of - because /admin/pages/edit/show/1 filename is admin-pages-edit-show-1
         $c = 1;
@@ -44,8 +50,14 @@ class ImageMaker extends BaseClass
             $c++;
         }
 
+        // Debug
+        Logger::get()->info("Saving screenshot to " . ROOT_DIR . "/screenshots/$dir/$filename");
+
         // Save the source code of the current path
-        file_put_contents(ROOT_DIR."/screenshots/$dir/$filename.html", $this->driver->getPageSource());
+        if (GET_HTML_SOURCE) {
+            $htmlFilename = preg_replace('%\.png%', '.html', $filename);
+            file_put_contents(ROOT_DIR . "/screenshots/$dir/$htmlFilename", $this->driver->getPageSource());
+        }
 
         // scroll to top of page
         $pilot->executeJS("window.scrollTo(0, 0);");
@@ -413,7 +425,7 @@ class ImageMaker extends BaseClass
             }
             unlink(ROOT_DIR . "/screenshots/$dir/$filename");
         }
-        $dim = new WebDriverDimension(1440, 900);
+        $dim = new WebDriverDimension(1200, 900);
         $this->driver->manage()->window()->setSize($dim);
     }
 
@@ -481,6 +493,10 @@ EOT
             );
             $ids = explode(';', $idsJoined);
 
+            //
+            $ids = ['Menu-CMSSettingsController'];
+            //
+
             // navigate to each model admin and take screenshot
             foreach ($ids as $id) {
                 Logger::get()->debug("Clicking model admin $id");
@@ -489,7 +505,7 @@ EOT
 EOT
                 );
                 $this->browserPilot->waitUntilPageLoaded();
-                $this->takeScreenshot(false);
+                $this->takeScreenshot(false, $id);
 
                 // get ids of all model admin tabs
                 $tabIDsJoined = $this->browserPilot->executeJS(<<<EOT
@@ -509,9 +525,10 @@ EOT
                 $tabIDs = explode(';', $tabIDsJoined);
 
                 foreach ($tabIDs as $tabID) {
+                    Logger::get()->debug("Clicking model admin $id tab $tabID");
                     $this->browserPilot->executeJS("document.getElementById('$tabID').click();");
                     $this->browserPilot->waitUntilPageLoaded();
-                    $this->takeScreenshot(false);
+                    $this->takeScreenshot(false, $id . '_' . $tabID);
                     $this->screenshotGridfield($gridFieldAssoc);
                 }
             }
@@ -552,7 +569,7 @@ EOT
             foreach ($ids as $id) {
                 $this->browserPilot->executeJS("document.getElementById('$id').click();");
                 $this->browserPilot->waitUntilPageLoaded();
-                $this->takeScreenshot(false);
+                $this->takeScreenshot(false, $id);
                 $this->screenshotGridfield($gridFieldAssoc);
             }
         }

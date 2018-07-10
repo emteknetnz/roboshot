@@ -15,12 +15,14 @@ class BrowserPilot extends BaseClass
     /**
      * Creates a ChromeDriver
      *
+     * 1200px width is so that the browser fits on a 13 inch macbook
+     *
      * @return ChromeDriver
      */
     function createDriver()
     {
         $this->driver = ChromeDriver::start();
-        $dim = new WebDriverDimension(1440, 900);
+        $dim = new WebDriverDimension(1200, 900);
         $this->driver->manage()->window()->setSize($dim);
         return $this->driver;
     }

@@ -493,10 +493,6 @@ EOT
             );
             $ids = explode(';', $idsJoined);
 
-            //
-            $ids = ['Menu-CMSSettingsController'];
-            //
-
             // navigate to each model admin and take screenshot
             foreach ($ids as $id) {
                 Logger::get()->debug("Clicking model admin $id");
@@ -508,8 +504,8 @@ EOT
                 $this->takeScreenshot(false, $id);
 
                 // get ids of all model admin tabs
-                $tabIDsJoined = $this->browserPilot->executeJS(<<<EOT
-                    var ids = [];
+                $tabIDsLabelsJoined = $this->browserPilot->executeJS(<<<EOT
+                    var idsLabels = [];
                     var selector = '.cms-tabset-nav-primary.ui-tabs-nav a';
                     var links = document.querySelectorAll(selector);
                     for (var i = 0; i < links.length; i++) {
@@ -517,18 +513,19 @@ EOT
                         if (link.innerText == 'Main') {
                             continue;
                         }
-                        ids.push(link.id);
+                        idsLabels.push(link.id + ',' + link.innerText.replace(' ', '_'));
                     }
-                    return ids.join(';');
+                    return idsLabels.join(';');
 EOT
                 );
-                $tabIDs = explode(';', $tabIDsJoined);
+                $tabIDsLabels = explode(';', $tabIDsLabelsJoined);
 
-                foreach ($tabIDs as $tabID) {
-                    Logger::get()->debug("Clicking model admin $id tab $tabID");
+                foreach ($tabIDsLabels as $tabIDLabel) {
+                    list($tabID, $tabLabel) = explode(",", $tabIDLabel);
+                    Logger::get()->debug("Clicking model admin $id tab $tabIDLabel");
                     $this->browserPilot->executeJS("document.getElementById('$tabID').click();");
                     $this->browserPilot->waitUntilPageLoaded();
-                    $this->takeScreenshot(false, $id . '_' . $tabID);
+                    $this->takeScreenshot(false, $id . '_' . $tabLabel);
                     $this->screenshotGridfield($gridFieldAssoc);
                 }
             }

@@ -513,7 +513,7 @@ EOT
                         if (link.innerText == 'Main') {
                             continue;
                         }
-                        idsLabels.push(link.id + ',' + link.innerText.replace(' ', '_'));
+                        idsLabels.push(link.id + ',' + link.innerText.replace(/ /g, '_'));
                     }
                     return idsLabels.join(';');
 EOT

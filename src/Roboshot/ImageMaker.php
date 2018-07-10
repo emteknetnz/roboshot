@@ -518,15 +518,17 @@ EOT
                     return idsLabels.join(';');
 EOT
                 );
-                $tabIDsLabels = explode(';', $tabIDsLabelsJoined);
 
-                foreach ($tabIDsLabels as $tabIDLabel) {
-                    list($tabID, $tabLabel) = explode(",", $tabIDLabel);
-                    Logger::get()->debug("Clicking model admin $id tab $tabIDLabel");
-                    $this->browserPilot->executeJS("document.getElementById('$tabID').click();");
-                    $this->browserPilot->waitUntilPageLoaded();
-                    $this->takeScreenshot(false, $id . '_' . $tabLabel);
-                    $this->screenshotGridfield($gridFieldAssoc);
+                if ($tabIDsLabelsJoined != '') {
+                    $tabIDsLabels = explode(';', $tabIDsLabelsJoined);
+                    foreach ($tabIDsLabels as $tabIDLabel) {
+                        list($tabID, $tabLabel) = explode(",", $tabIDLabel);
+                        Logger::get()->debug("Clicking model admin $id tab $tabIDLabel");
+                        $this->browserPilot->executeJS("document.getElementById('$tabID').click();");
+                        $this->browserPilot->waitUntilPageLoaded();
+                        $this->takeScreenshot(false, $id . '_' . $tabLabel);
+                        $this->screenshotGridfield($gridFieldAssoc);
+                    }
                 }
             }
         }

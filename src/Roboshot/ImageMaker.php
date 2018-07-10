@@ -513,7 +513,7 @@ EOT
                         if (link.innerText == 'Main') {
                             continue;
                         }
-                        idsLabels.push(link.id + ',' + link.innerText.replace(/ /g, '_'));
+                        idsLabels.push(link.id + '|' + link.innerText.replace(/ /g, '_'));
                     }
                     return idsLabels.join(';');
 EOT
@@ -521,13 +521,15 @@ EOT
 
                 if ($tabIDsLabelsJoined != '') {
                     $tabIDsLabels = explode(';', $tabIDsLabelsJoined);
-                    foreach ($tabIDsLabels as $tabIDLabel) {
-                        list($tabID, $tabLabel) = explode(",", $tabIDLabel);
-                        Logger::get()->debug("Clicking model admin $id tab $tabIDLabel");
-                        $this->browserPilot->executeJS("document.getElementById('$tabID').click();");
-                        $this->browserPilot->waitUntilPageLoaded();
-                        $this->takeScreenshot(false, $id . '_' . $tabLabel);
-                        $this->screenshotGridfield($gridFieldAssoc);
+                    if (count($tabIDsLabels) > 1) {
+                        foreach ($tabIDsLabels as $tabIDLabel) {
+                            list($tabID, $tabLabel) = explode("|", $tabIDLabel);
+                            Logger::get()->debug("Clicking model admin $id tab $tabIDLabel");
+                            $this->browserPilot->executeJS("document.getElementById('$tabID').click();");
+                            $this->browserPilot->waitUntilPageLoaded();
+                            $this->takeScreenshot(false, $id . '_' . $tabLabel);
+                            $this->screenshotGridfield($gridFieldAssoc);
+                        }
                     }
                 }
             }

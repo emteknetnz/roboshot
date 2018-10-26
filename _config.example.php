@@ -8,8 +8,6 @@ define('SCREENSHOT_BRANCH', true);
 define('CREATE_RESULTS', true);
 define('GET_HTML_SOURCE', false);
 
-define('LOG_LEVEL', Monolog\Logger::INFO);
-
 define('PATHS', serialize([
     '/',
     '/contact-us/',
@@ -19,6 +17,8 @@ define('PATHS', serialize([
 // Admin credentials
 define('ADMIN_USERNAME', 'admin');
 define('ADMIN_PASSWORD', 'password');
+
+define('LOG_LEVEL', Monolog\Logger::INFO);
 
 // ID's of elements on /Security/login
 define('LOGIN_USERNAME_ID', 'MemberLoginForm_LoginForm_Email');

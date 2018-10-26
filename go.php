@@ -63,8 +63,13 @@ if ($screenshotBaseline || $screenshotBranch) {
         $imageMaker->deletePreviousImages();
         foreach ($paths as $path) {
             if (preg_match('%^/admin%', $path)) {
-                $imageMaker->screenshotAdmin($path);
+                // disabling this feature because performance in admin is really awful so takes forever,
+                // it sometimes crashes, makes far too many screenshots, and make the whole experience of using
+                // roboshot horrible, unlikely to get an user uptake on tool if the whole thing is painful
+                // $imageMaker->screenshotAdmin($path);
+                continue;
             } else {
+                // this is useful and fun mode, so keep this :-)
                 $browserPilot->get($path);
                 $imageMaker->takeScreenshot();
             }
